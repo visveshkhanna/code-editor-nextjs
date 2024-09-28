@@ -1,9 +1,15 @@
 "use client";
-import { DirectoryItemType } from "@/lib/types";
-import Link from "next/link";
-import React, { useState } from "react";
-import { FaFolder, FaFolderOpen, FaFile } from "react-icons/fa";
+import * as React from "react";
+import { ChevronDown, ChevronRight, File, Folder } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import path from "path";
+import Link from "next/link";
+
+type DirectoryItemType = {
+  name: string;
+  type: "file" | "folder";
+  children?: DirectoryItemType[];
+};
 
 interface DirectoryItemProps {
   item: DirectoryItemType;
@@ -16,38 +22,36 @@ const DirectoryItem: React.FC<DirectoryItemProps> = ({
   level,
   currentPath,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const hasChildren =
-    item.type === "folder" && item.children && item.children.length > 0;
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const toggleExpand = () => {
-    if (hasChildren) {
-      setIsExpanded((prev) => !prev);
+    if (item.type === "folder") {
+      setIsExpanded(!isExpanded);
     }
   };
 
-  // Compute the new path
   const itemPath = currentPath ? path.join(currentPath, item.name) : item.name;
 
   return (
-    <>
-      <div
-        className={`flex items-center cursor-pointer h-8`}
-        style={{ paddingLeft: `${level * 16}px` }}
+    <div className="w-full">
+      <Button
+        variant="ghost"
+        className={`border w-full justify-start px-2 py-1 text-sm font-normal ${
+          level > 0 ? "pl-[20px]" : ""
+        }`}
         onClick={toggleExpand}
       >
-        <span className="w-4 mr-2 flex-shrink-0">
-          {item.type === "folder" ? (
-            isExpanded ? (
-              <FaFolderOpen />
-            ) : (
-              <FaFolder />
-            )
+        {item.type === "folder" &&
+          (isExpanded ? (
+            <ChevronDown className="h-4 w-4 mr-1" />
           ) : (
-            <FaFile />
-          )}
-        </span>
+            <ChevronRight className="h-4 w-4 mr-1" />
+          ))}
+        {item.type === "folder" ? (
+          <Folder className="h-4 w-4 mr-1" />
+        ) : (
+          <File className="h-4 w-4 mr-1" />
+        )}
         {item.type === "file" ? (
           <Link href={`?fileName=${itemPath}`} className="text-sm select-none">
             {item.name}
@@ -55,21 +59,20 @@ const DirectoryItem: React.FC<DirectoryItemProps> = ({
         ) : (
           <span className="text-sm select-none">{item.name}</span>
         )}
-      </div>
-      {hasChildren && isExpanded && (
-        <div>
-          {item.children &&
-            item.children.map((child, index) => (
-              <DirectoryItem
-                key={`${child.name}-${index}`}
-                item={child}
-                level={level + 1}
-                currentPath={itemPath}
-              />
-            ))}
+      </Button>
+      {item.type === "folder" && isExpanded && item.children && (
+        <div className="ml-4">
+          {item.children.map((child, index) => (
+            <DirectoryItem
+              key={index}
+              item={child}
+              level={level + 1}
+              currentPath={itemPath}
+            />
+          ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -79,15 +82,15 @@ interface FileExplorerProps {
 
 const FileExplorer: React.FC<FileExplorerProps> = ({ data }) => {
   return (
-    <div>
-      {data.map((item, index) => (
-        <DirectoryItem
-          key={`${item.name}-${index}`}
-          item={item}
-          level={0}
-          currentPath=""
-        />
-      ))}
+    <div className="h-dvh flex w-full">
+      <div className="w-full bg-background">
+        <div className="p-2 font-semibold text-sm">EXPLORER</div>
+        <div className="px-2">
+          {data.map((item, index) => (
+            <DirectoryItem key={index} item={item} level={0} currentPath="" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

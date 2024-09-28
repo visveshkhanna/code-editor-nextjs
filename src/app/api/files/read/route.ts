@@ -7,9 +7,7 @@ export async function POST(req: Request) {
   if (!projectName || !fileName) {
     return Response.json({ error: "Missing projectName or fileName" });
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
   const content = readFile(projectName, fileName);
+  console.log(fileName, content);
   return Response.json({ content: content });
 }

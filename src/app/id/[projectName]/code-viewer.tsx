@@ -1,8 +1,8 @@
 "use client";
-import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
+import Editor from "@monaco-editor/react";
+import { languageMap } from "./languages";
 
 interface CodeViewerProps {
   projectName: string;
@@ -10,14 +10,18 @@ interface CodeViewerProps {
 }
 
 const CodeViewer: React.FC<CodeViewerProps> = ({ projectName, fileName }) => {
-  const [codeState, setCodeState] = useState("");
+  const [code, setcode] = useState("");
   const [processing, setProcessing] = useState(false);
+
+  const extension = fileName.split(".").pop() as string;
+
+  // const language =
 
   const handleSave = async () => {
     setProcessing(true);
     const response = await fetch("/api/files/write", {
       method: "POST",
-      body: JSON.stringify({ projectName, fileName, content: codeState }),
+      body: JSON.stringify({ projectName, fileName, content: code }),
     });
     const data = await response.json();
     setProcessing(false);
@@ -34,25 +38,29 @@ const CodeViewer: React.FC<CodeViewerProps> = ({ projectName, fileName }) => {
         body: JSON.stringify({ projectName, fileName }),
       });
       const data = await response.json();
-      setCodeState(data.content);
+      setcode(data.content);
       return data.content;
     },
   });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="flex flex-col gap-2">
-      <Textarea
-        value={codeState}
-        onChange={(e) => setCodeState(e.target.value)}
-        rows={14}
-      ></Textarea>
-      <Button className="w-full" onClick={handleSave}>
-        {processing ? "Saving..." : "Save"}
-      </Button>
+      <Editor
+        height={"100dvh"}
+        value={code}
+        onChange={(value, event) => {
+          setcode(value as string);
+        }}
+        language={languageMap[extension] || "plaintext"}
+        theme="vs-dark"
+        options={{
+          fontSize: 16,
+        }}
+      />
     </div>
   );
 };
