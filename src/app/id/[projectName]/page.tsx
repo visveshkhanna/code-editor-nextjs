@@ -8,6 +8,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { Folder } from "lucide-react";
 
 export default function ProjectPage({
   params,
@@ -22,9 +23,14 @@ export default function ProjectPage({
 
   return (
     <ResizablePanelGroup direction="horizontal">
-      <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+      <ResizablePanel defaultSize={10} minSize={15} maxSize={25}>
         <div className="flex flex-col w-full border-r-2 h-dvh p-2">
-          {projectDetails && <FileExplorer data={projectDetails} />}
+          {projectDetails && (
+            <FileExplorer
+              data={projectDetails}
+              projectName={params.projectName}
+            />
+          )}
         </div>
       </ResizablePanel>
       <ResizableHandle />
@@ -37,12 +43,15 @@ export default function ProjectPage({
                 projectName={params.projectName}
               />
             ) : (
-              <div>No file selected</div>
+              <div className="flex flex-col gap-2 p-4 items-center justify-center w-full h-full text-muted-foreground bg-muted">
+                <Folder size={30} />
+                <p>No file selected</p>
+              </div>
             )}
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel minSize={30}>
-            <Terminal />
+            <Terminal projectName={params.projectName} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </ResizablePanel>

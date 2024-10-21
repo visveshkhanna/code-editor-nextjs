@@ -1,10 +1,16 @@
 "use client";
 import * as React from "react";
-import { ChevronDown, ChevronRight, File, Folder } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  File,
+  Folder,
+  PlusIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import path from "path";
 import Link from "next/link";
-
+import CreateDialog from "./create-dialog";
 type DirectoryItemType = {
   name: string;
   type: "file" | "folder";
@@ -36,7 +42,7 @@ const DirectoryItem: React.FC<DirectoryItemProps> = ({
     <div className="w-full">
       <Button
         variant="ghost"
-        className={`border w-full justify-start px-2 py-1 text-sm font-normal ${
+        className={` w-full justify-start px-2 py-1 text-sm font-normal ${
           level > 0 ? "pl-[20px]" : ""
         }`}
         onClick={toggleExpand}
@@ -78,14 +84,27 @@ const DirectoryItem: React.FC<DirectoryItemProps> = ({
 
 interface FileExplorerProps {
   data: DirectoryItemType[];
+  projectName: string;
 }
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ data }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({ data, projectName }) => {
   return (
     <div className="h-dvh flex w-full">
       <div className="w-full bg-background">
-        <div className="p-2 font-semibold text-sm">EXPLORER</div>
-        <div className="px-2">
+        <div className="flex justify-between w-full items-center p-2 font-semibold text-sm">
+          <p className="text-xs text-muted-foreground">EXPLORER</p>
+          <div className="flex items-center gap-1">
+            <CreateDialog
+              projectName={projectName}
+              btn={
+                <Button size={"icon"} variant={"outline"}>
+                  <PlusIcon size={20} />
+                </Button>
+              }
+            />
+          </div>
+        </div>
+        <div className="px-2 space-y-1">
           {data.map((item, index) => (
             <DirectoryItem key={index} item={item} level={0} currentPath="" />
           ))}

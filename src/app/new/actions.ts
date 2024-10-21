@@ -1,10 +1,10 @@
 import fs from "fs";
+import { redirect } from "next/navigation";
 import path from "path";
 
 export const createProject = async (formData: FormData) => {
   "use server";
   const projectName = formData.get("projectName");
-  const project = formData.get("project");
 
   const projectDir = path.join(
     process.cwd(),
@@ -16,11 +16,7 @@ export const createProject = async (formData: FormData) => {
     fs.mkdirSync(projectDir, { recursive: true });
   }
 
-  fs.writeFileSync(
-    path.join(projectDir, "echo.yml"),
-    `name: ${projectName}
-image: ${project}`
-  );
+  fs.writeFileSync(path.join(projectDir, "echo.yml"), `name: ${projectName}`);
 
-  console.log(projectDir + " created.");
+  redirect("/id/" + projectName);
 };

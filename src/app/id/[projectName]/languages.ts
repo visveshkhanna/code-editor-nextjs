@@ -95,6 +95,8 @@ export const languageMap: Record<string, string> = {
   // Java
   java: "java",
 
+  json: "json",
+
   // JavaScript
   js: "javascript",
   jsx: "javascript",
