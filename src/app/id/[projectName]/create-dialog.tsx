@@ -20,6 +20,7 @@ export default function CreateDialog({
   btn: React.ReactNode;
   projectName: string;
 }) {
+  const [dialogopen, setDialogopen] = useState(false);
   const [input, setInput] = useState("");
   const [type, setType] = useState<string>("File");
   const [processing, setProcessing] = useState(false);
@@ -39,10 +40,14 @@ export default function CreateDialog({
     console.log(resp);
 
     setProcessing(false);
+    if (type === "File") {
+      router.push(`/id/${projectName}?fileName=${input}`);
+    }
+    setDialogopen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={dialogopen} onOpenChange={(e) => setDialogopen(e)}>
       <DialogTrigger asChild>{btn}</DialogTrigger>
       <DialogContent>
         <p>Create file</p>

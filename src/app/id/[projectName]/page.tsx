@@ -9,6 +9,7 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { Folder } from "lucide-react";
+import AIChatBox from "./ai";
 
 export default function ProjectPage({
   params,
@@ -23,6 +24,10 @@ export default function ProjectPage({
 
   return (
     <ResizablePanelGroup direction="horizontal">
+      <AIChatBox
+        fileName={searchParams?.fileName as string}
+        projectName={params.projectName}
+      />
       <ResizablePanel defaultSize={10} minSize={15} maxSize={25}>
         <div className="flex flex-col w-full border-r-2 h-dvh p-2">
           {projectDetails && (

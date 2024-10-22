@@ -10,8 +10,6 @@ export async function POST(req: Request) {
     });
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
-
   await writeFile(projectName, fileName, content);
   return Response.json({ success: true });
 }
