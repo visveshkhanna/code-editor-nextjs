@@ -8,7 +8,7 @@ const CreateProjectForm = () => {
       <p className="text-lg font-semibold">Create New Project</p>
       <form
         action={createProject}
-        className="flex flex-col gap-4 p-4 rounded-xl border w-full"
+        className="flex flex-col gap-4 rounded-xl w-full"
       >
         <Input type="text" name="projectName" placeholder="Project name" />
 

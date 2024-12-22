@@ -47,20 +47,24 @@ export async function POST(req: Request) {
 
 function executeCommand(command: string, cwd: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    exec(command, { cwd, timeout: 10000 }, (error, stdout, stderr) => {
-      console.log(error, stdout, stderr);
-      if (error) {
-        const output = (stdout || "") + (stderr || "");
-        if (error.killed) {
-          reject(
-            new CommandError("Process terminated due to timeout.", output)
-          );
+    exec(
+      command.replace("python", "/usr/sbin/python3"),
+      { cwd, timeout: 10000 },
+      (error, stdout, stderr) => {
+        console.log(error, stdout, stderr);
+        if (error) {
+          const output = (stdout || "") + (stderr || "");
+          if (error.killed) {
+            reject(
+              new CommandError("Process terminated due to timeout.", output)
+            );
+          } else {
+            reject(new CommandError(stderr || error.message, output));
+          }
         } else {
-          reject(new CommandError(stderr || error.message, output));
+          resolve(stdout || stderr);
         }
-      } else {
-        resolve(stdout || stderr);
       }
-    });
+    );
   });
 }

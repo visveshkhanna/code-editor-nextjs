@@ -15,7 +15,7 @@ const writeFile = (projectName: string, fileName: string, content: string) => {
 };
 export async function POST(req: Request) {
   const body = await req.json();
-  const { projectName, fileName, content } = body;
+  const { projectName, fileName, content, prompt } = body;
 
   if (!projectName || !fileName || !content) {
     return Response.json({
@@ -28,8 +28,12 @@ export async function POST(req: Request) {
     messages: [
       {
         role: "system",
-        content:
-          "You are a AI agent who collects the file name and the content inside it, if you could fix the errors automatically by getting the context yourselves without the need for other files, you can fix the code and return the same, if not you will return the content that the user sent simply. YOU WILL NOT ADD ANY TEXT APART FROM THAT. PROVIDE THE CODE IN TEXT FORMAT ONLY WITHOUT ANY MARKDOWN FORMAT",
+        content: `You are an AI agent responsible for analyzing and correcting file content based on the provided filename and code content. If errors are identified and can be corrected based on the user’s prompt, modify the code accordingly and return only the corrected code. If no corrections are possible, return the original content exactly as provided.
+
+        Return the output in plain text format only, containing the code content without any additional text, markdown formatting, or file information.
+          
+          PROMPT: ${prompt}
+          `,
       },
       {
         role: "user",

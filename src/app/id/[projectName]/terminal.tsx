@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 interface Line {
   type: string;
@@ -11,6 +11,22 @@ export default function Terminal({ projectName }: { projectName: string }) {
   const [currentLine, setCurrentLine] = React.useState<string>("");
   const [lines, setLines] = React.useState<Line[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [history, setHistory] = React.useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = React.useState<number | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null); // For auto-focusing on the input
+  const bottomRef = useRef<HTMLDivElement>(null); // For auto-scrolling to the bottom
+
+  useEffect(() => {
+    // Auto-focus on the input whenever a command is run or on initial render
+    if (inputRef.current) inputRef.current.focus();
+  }, [lines, loading]);
+
+  useEffect(() => {
+    // Auto-scroll to the bottom whenever lines change
+    if (bottomRef.current)
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [lines]);
 
   const executeCommand = async (command: string) => {
     try {
@@ -44,6 +60,8 @@ export default function Terminal({ projectName }: { projectName: string }) {
       if (trimmedLine === "clear") {
         setLines([]);
         setCurrentLine("");
+        setHistory([]);
+        setHistoryIndex(null);
         return;
       }
 
@@ -52,6 +70,8 @@ export default function Terminal({ projectName }: { projectName: string }) {
         { output: `# ${currentLine}`, type: "normal" },
       ];
       setLines(newLines);
+      setHistory((prevHistory) => [...prevHistory, currentLine]);
+      setHistoryIndex(null);
       setCurrentLine("");
 
       const output = await executeCommand(currentLine);
@@ -63,6 +83,34 @@ export default function Terminal({ projectName }: { projectName: string }) {
           output: output.output,
         },
       ]);
+    } else if (e.key === "ArrowUp") {
+      if (historyIndex === null && history.length > 0) {
+        setHistoryIndex(history.length - 1);
+        setCurrentLine(history[history.length - 1]);
+      } else if (historyIndex !== null && historyIndex > 0) {
+        setHistoryIndex((prevIndex) => {
+          if (prevIndex !== null) {
+            const newIndex = prevIndex - 1;
+            setCurrentLine(history[newIndex]);
+            return newIndex;
+          }
+          return null;
+        });
+      }
+    } else if (e.key === "ArrowDown") {
+      if (historyIndex !== null && historyIndex < history.length - 1) {
+        setHistoryIndex((prevIndex) => {
+          if (prevIndex !== null) {
+            const newIndex = prevIndex + 1;
+            setCurrentLine(history[newIndex]);
+            return newIndex;
+          }
+          return null;
+        });
+      } else if (historyIndex !== null && historyIndex === history.length - 1) {
+        setHistoryIndex(null);
+        setCurrentLine("");
+      }
     }
   };
 
@@ -81,6 +129,7 @@ export default function Terminal({ projectName }: { projectName: string }) {
             </p>
           </div>
         ))}
+        <div ref={bottomRef} /> {/* Auto-scroll to this element */}
       </div>
       <div className="flex items-center gap-1">
         <p
@@ -91,6 +140,7 @@ export default function Terminal({ projectName }: { projectName: string }) {
           #
         </p>
         <input
+          ref={inputRef} // Set ref to input for auto-focus
           disabled={loading}
           className="border-0 outline-none w-full bg-transparent text-white"
           onKeyDown={handleKeyDown}
